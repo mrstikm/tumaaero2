@@ -52,12 +52,11 @@ export default {
             isScrollable: false
         }
     },
-    mounted() {
-        this.getData()
-        setInterval( () => {
-            if(this.dataSource) {
-                this.getData()
-            }
+    async mounted() {
+        this.data = await this.getData()
+        this.dataLoading = false
+        setInterval( async () => {
+            this.data = await this.getData()
         }, 60000)
         if (this.isScrollable) {
             setInterval( () => {
@@ -67,35 +66,39 @@ export default {
     },
     methods: {
         async getData() {
-            try {
-                const response = await axios.post(
-                    'http://192.168.100.3:8080/sendPost2/PXQ72SBErpZST9nbB98EZMRRhAFvpC',
-                    {
-                        'id': 'PXQ72SBErpZST9nbB98EZMRRhAFvpC',
-                        'typ': 0,
-                        'head': 'typUdalosti=30',
-                        'items': []
-                    },
-                    {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'charset': 'utf-8', 
-                    },
-                )
-                this.data = response.data.payload
-                console.log(this.data);
-            } catch(e) {
-                return e 
-            }
-            this.dataLoading = false
+            return new Promise( async (resolve, reject) => {
+                try {
+                    const response = await axios.post(
+                        'http://192.168.100.3:8080/sendPost2/PXQ72SBErpZST9nbB98EZMRRhAFvpC',
+                        {
+                            'id': 'PXQ72SBErpZST9nbB98EZMRRhAFvpC',
+                            'typ': 0,
+                            'head': 'typUdalosti=30',
+                            'items': []
+                        },
+                        {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'charset': 'utf-8', 
+                        },
+                    )
+                    resolve(response.data.payload)
+                } catch(e) {
+                    reject(e) 
+                }
+            })
         },
         getPercentage(zahajeni, norma) {
-            zahajeni = new Date(zahajeni)
-            let aktual = new Date()
-
-            zahajeni = Date.parse(zahajeni)/1000/60
-            aktual = Date.parse(aktual)/1000/60
-            return Math.round((100*(aktual - zahajeni)) / (norma))
+            if (zahajeni) {
+                zahajeni = new Date(zahajeni)
+                let aktual = new Date()
+    
+                zahajeni = Date.parse(zahajeni)/1000/60
+                aktual = Date.parse(aktual)/1000/60
+                return Math.round((100*(aktual - zahajeni)) / (norma))
+            } else {
+                return null
+            }
         },
         isScrollableFn() {
             let table = document.querySelector('.top-panel')
@@ -128,7 +131,3 @@ export default {
     },
 }
 </script>
-
-<style lang="scss" scoped>
-
-</style>
