@@ -39,7 +39,7 @@ export default {
   justify-content: space-between;
   padding: 1rem;
   border-radius: 10px;
-  background-color: rgba(#FFF, .5);
+  background-color: rgba(#FFF, .7);
   box-shadow: 15px 15px 35px rgba(#FFF, .2);
   .timer {
     min-width: 150px;
